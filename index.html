@@ -1,13 +1,26 @@
+```html
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/public/logo.png" width="100px" height="100px"/>
+
+    <!-- Favicon (place logo.png inside /public folder) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/logo.png" />
+
+    <!-- Optional (for better quality on some devices) -->
+    <link rel="apple-touch-icon" href="/logo.png" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>adwaid</title>
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!-- React entry -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+```
+
