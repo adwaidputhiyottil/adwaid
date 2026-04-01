@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiLogOut, FiUser, FiSettings, FiGrid, FiMessageSquare, FiTrash2, FiSend, FiAward } from 'react-icons/fi';
 import { usePortfolio } from '../../context/PortfolioContext';
+import { supabase } from '../../supabase/client';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('profile');
@@ -15,9 +16,21 @@ const AdminDashboard = () => {
   } = usePortfolio();
 
   useEffect(() => {
-    if (localStorage.getItem('admin_session') !== 'authenticated') {
-      navigate('/admin/login');
-    }
+    const checkAuth = async () => {
+      if (localStorage.getItem('admin_session') !== 'authenticated') {
+        navigate('/admin/login');
+        return;
+      }
+      
+      if (supabase) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          localStorage.removeItem('admin_session');
+          navigate('/admin/login');
+        }
+      }
+    };
+    checkAuth();
   }, [navigate]);
 
   return (
@@ -50,7 +63,11 @@ const AdminDashboard = () => {
         </nav>
 
         <div className="p-4 border-t-4 border-black">
-          <button onClick={() => { localStorage.removeItem('admin_session'); navigate('/admin/login'); }} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brutal-red text-white brutal-border shadow-[4px_4px_0_rgba(0,0,0,1)] font-bold uppercase hover:-translate-y-1 transition-transform">
+          <button onClick={async () => { 
+            if (supabase) await supabase.auth.signOut();
+            localStorage.removeItem('admin_session'); 
+            navigate('/admin/login'); 
+          }} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-brutal-red text-white brutal-border shadow-[4px_4px_0_rgba(0,0,0,1)] font-bold uppercase hover:-translate-y-1 transition-transform">
             <FiLogOut size={18} /> Sign Out
           </button>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiLock, FiMail } from 'react-icons/fi';
+import { supabase } from '../../supabase/client';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,16 +9,35 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
-    // Hardcoded Local Authentication
-    if (email === 'admin@gmail.com' && password === 'admin123') {
+    if (!supabase) {
+      if (email === 'admin@gmail.com' && password === 'admin123') {
+        localStorage.setItem('admin_session', 'authenticated');
+        navigate('/admin/dashboard');
+      } else {
+        setError('Invalid local credentials');
+      }
+      setLoading(false);
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError(signInError.message);
+      setLoading(false);
+    } else {
       localStorage.setItem('admin_session', 'authenticated');
       navigate('/admin/dashboard');
-    } else {
-      setError('Invalid email or password');
     }
   };
 
@@ -75,9 +95,10 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full brutal-button bg-brutal-green text-black font-display font-bold text-xl py-4 mt-6 tracking-widest uppercase hover:bg-brutal-yellow"
+              disabled={loading}
+              className="w-full brutal-button bg-brutal-green text-black font-display font-bold text-xl py-4 mt-6 tracking-widest uppercase hover:bg-brutal-yellow disabled:opacity-50"
             >
-              Sign In
+              {loading ? 'Authenticating...' : 'Sign In'}
             </button>
           </form>
           
