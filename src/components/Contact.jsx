@@ -11,7 +11,7 @@ const Contact = () => {
     if (!formData.name || !formData.email || !formData.message) return;
     
     addMessage(formData);
-    setStatus('SENT!');
+    setStatus('Message sent successfully!');
     setFormData({ name: '', email: '', message: '' });
     
     setTimeout(() => setStatus(''), 3000);
@@ -30,7 +30,12 @@ const Contact = () => {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full lg:w-1/2 flex flex-col gap-4 bg-[#f4ebd0] p-6 lg:p-8 brutal-border shadow-[8px_8px_0_rgba(0,0,0,1)]">
+      <form onSubmit={handleSubmit} className="w-full lg:w-1/2 flex flex-col gap-4 bg-[#f4ebd0] p-6 lg:p-8 brutal-border shadow-[8px_8px_0_rgba(0,0,0,1)] relative">
+        {status && (
+          <div className="absolute -top-10 -right-2 sm:-right-8 bg-brutal-green text-black border-4 border-black p-4 font-display font-bold uppercase shadow-[6px_6px_0_rgba(0,0,0,1)] animate-bounce z-10 sm:text-lg text-center transform rotate-2">
+            {status}
+          </div>
+        )}
         <div className="flex flex-col">
           <label className="font-display font-bold uppercase text-sm mb-1">Name</label>
           <input
@@ -68,7 +73,7 @@ const Contact = () => {
           type="submit" 
           className="brutal-button bg-brutal-yellow py-4 mt-2 text-lg hover:bg-brutal-red hover:text-white transition-colors"
         >
-          {status || 'SEND IT'}
+          {status ? 'SENT!' : 'SEND IT'}
         </button>
       </form>
     </div>
