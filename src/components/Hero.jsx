@@ -1,68 +1,52 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { FiArrowRight, FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
+import { FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
+import { usePortfolio } from '../context/PortfolioContext';
 
 const Hero = () => {
+  const { profile } = usePortfolio();
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      {/* Main Intro Card */}
-      <motion.div 
-        className="md:col-span-2 bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-primary-100 flex flex-col justify-center relative overflow-hidden group"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors duration-700"></div>
-        <div className="inline-block px-4 py-2 rounded-full bg-accent/10 text-accent text-xs font-bold tracking-widest uppercase mb-6 self-start">
-          Software Developer
-        </div>
-        <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold tracking-tight text-primary-900 leading-tight mb-6">
-          Hi, I am <span className="text-accent relative inline-block">Adwaid
-            <motion.span className="absolute -bottom-2 left-0 w-full h-1.5 bg-accent/30 rounded-full" initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ delay: 0.5, duration: 0.8 }}></motion.span>
-          </span>
-        </h1>
-        <p className="text-lg lg:text-xl text-primary-500 max-w-lg leading-relaxed mb-8 font-medium">
-          I build elegant, highly responsive web experiences. I'm currently pursuing my MCA and striving to become an exceptionally reliable tech professional.
+    <div className="flex flex-col h-full bg-[#f4ebd0] relative relative">
+      <div className="absolute top-0 right-0 md:top-4 md:right-4 bg-brutal-blue brutal-border px-3 py-1 shadow-[2px_2px_0_rgba(0,0,0,1)] transform rotate-3 z-10 hidden sm:block">
+        <p className="font-display font-bold text-xs uppercase animate-pulse">AVAILABLE TO WORK</p>
+      </div>
+
+      <div className="flex justify-between items-start mb-4">
+        {/* Intro text */}
+        <p className="font-display font-bold uppercase tracking-widest text-lg md:text-xl text-black">
+          Hello. I'm {profile.name}
         </p>
-        <div className="flex items-center gap-4">
-          <a href="#projects" className="bg-primary-900 text-white px-8 py-4 rounded-full font-bold hover:bg-accent hover:shadow-lg hover:shadow-accent/20 transition-all flex items-center gap-2">
-            View Work <FiArrowRight />
-          </a>
+        <div className="bg-brutal-blue brutal-border px-2 py-1 shadow-[2px_2px_0_rgba(0,0,0,1)] transform rotate-3 sm:hidden">
+          <p className="font-display font-bold text-[10px] uppercase animate-pulse">AVAILABLE TO WORK</p>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Side Quick Stats / Visual Card */}
-      <motion.div 
-        className="bg-primary-900 rounded-3xl p-8 text-white shadow-xl shadow-primary-900/10 flex flex-col justify-between"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <div>
-          <h3 className="text-primary-300 text-sm font-semibold uppercase tracking-widest mb-2">Based In</h3>
-          <p className="text-xl font-bold mb-8">Kerala, India</p>
+      {/* Massive Title */}
+      <h1 className="font-display text-5xl md:text-7xl lg:text-[5.5rem] leading-[0.9] uppercase tracking-tighter mb-6 text-black" style={{ textShadow: '4px 4px 0px rgba(0,0,0,1), -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
+        <span className="text-brutal-blue block mb-2" style={{ WebkitTextStroke: '2px black' }}>{profile.title.split('&')[0] || profile.title}</span> 
+        {profile.title.includes('&') && (
+          <span className="text-brutal-yellow block" style={{ WebkitTextStroke: '2px black' }}>& {profile.title.split('&')[1]}</span>
+        )}
+      </h1>
 
-          <h3 className="text-primary-300 text-sm font-semibold uppercase tracking-widest mb-2">Education</h3>
-          <p className="text-xl font-bold">MCA (Pursuing)</p>
-          <p className="text-sm font-medium text-primary-400 mt-1">Union Christian College, Aluva</p>
-        </div>
+      {/* Bio */}
+      <p className="font-body font-bold text-sm md:text-base uppercase max-w-sm mb-12 text-black leading-relaxed">
+        {profile.bio}
+      </p>
 
-        <div className="flex gap-4 mt-12">
-          <a href="#" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary-900 transition-colors">
-            <FiGithub size={20} />
-          </a>
-          <a href="#" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary-900 transition-colors">
-            <FiLinkedin size={20} />
-          </a>
-          <a href="mailto:contact@adwaid.com" className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center hover:bg-white hover:text-primary-900 transition-colors">
-            <FiMail size={20} />
-          </a>
-        </div>
-      </motion.div>
-
+      {/* Social Icons Box */}
+      <div className="flex gap-4 mt-auto">
+        <a href="#" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl">
+          <FiGithub className="stroke-[2.5]" />
+        </a>
+        <a href="#" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl">
+          <FiLinkedin className="stroke-[2.5]" />
+        </a>
+        <a href="mailto:admin@gmail.com" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl">
+          <FiMail className="stroke-[2.5]" />
+        </a>
+      </div>
+      
     </div>
   );
 };

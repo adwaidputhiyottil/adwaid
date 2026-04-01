@@ -1,103 +1,77 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FiSend } from 'react-icons/fi';
+import { usePortfolio } from '../context/PortfolioContext';
 
 const Contact = () => {
+  const { addMessage } = usePortfolio();
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState(null);
+  const [status, setStatus] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!formData.name || !formData.email || !formData.message) return;
     
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setSubmitStatus(null), 3000);
-    }, 1500);
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    addMessage(formData);
+    setStatus('SENT!');
+    setFormData({ name: '', email: '', message: '' });
+    
+    setTimeout(() => setStatus(''), 3000);
   };
 
   return (
-    <motion.div
-      className="bg-white rounded-3xl p-8 lg:p-12 shadow-sm border border-primary-100 relative overflow-hidden"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Decorative Blob */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+    <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center">
+        <h2 className="font-display text-3xl md:text-5xl uppercase font-bold mb-4 tracking-tight">Let's build something</h2>
+        <p className="font-body font-bold text-lg mb-8 max-w-sm">
+          Got a project? I'd love to hear about it. Drop a message below and I will get back to you!
+        </p>
+        
+        <div className="bg-brutal-blue brutal-border p-4 w-fit shadow-[4px_4px_0_rgba(0,0,0,1)] transform -rotate-2">
+          <p className="font-display font-bold uppercase animate-pulse">AVAILABLE FOR HIRE</p>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
-        <div className="flex flex-col justify-center">
-          <div className="w-12 h-12 rounded-2xl bg-accent/10 flex items-center justify-center text-accent text-xl font-bold mb-6">
-            @
-          </div>
-          <h2 className="text-3xl lg:text-4xl font-bold text-primary-900 mb-4">Let's Work Together</h2>
-          <p className="text-primary-500 font-medium leading-relaxed max-w-sm">
-            Have a project in mind or want to explore an opportunity? I am currently available for hiring and eager to tackle new challenges.
-          </p>
+      <form onSubmit={handleSubmit} className="w-full lg:w-1/2 flex flex-col gap-4 bg-[#f4ebd0] p-6 lg:p-8 brutal-border shadow-[8px_8px_0_rgba(0,0,0,1)]">
+        <div className="flex flex-col">
+          <label className="font-display font-bold uppercase text-sm mb-1">Name</label>
+          <input
+            type="text"
+            className="brutal-border p-3 focus:outline-none focus:shadow-brutal bg-white"
+            value={formData.name}
+            onChange={e => setFormData({...formData, name: e.target.value})}
+            required
+          />
+        </div>
+        
+        <div className="flex flex-col">
+          <label className="font-display font-bold uppercase text-sm mb-1">Email</label>
+          <input
+            type="email"
+            className="brutal-border p-3 focus:outline-none focus:shadow-brutal bg-white"
+            value={formData.email}
+            onChange={e => setFormData({...formData, email: e.target.value})}
+            required
+          />
+        </div>
+        
+        <div className="flex flex-col">
+          <label className="font-display font-bold uppercase text-sm mb-1">Message</label>
+          <textarea
+            rows="4"
+            className="brutal-border p-3 focus:outline-none focus:shadow-brutal bg-white resize-none"
+            value={formData.message}
+            onChange={e => setFormData({...formData, message: e.target.value})}
+            required
+          ></textarea>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full bg-primary-50 p-6 md:p-8 rounded-3xl border border-primary-100">
-          <div className="flex flex-col gap-2">
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className="bg-white border-transparent text-primary-900 text-sm font-medium rounded-2xl focus:ring-2 focus:ring-accent/50 focus:border-accent block w-full px-5 py-4 transition-all shadow-sm"
-              placeholder="Your Name"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="bg-white border-transparent text-primary-900 text-sm font-medium rounded-2xl focus:ring-2 focus:ring-accent/50 focus:border-accent block w-full px-5 py-4 transition-all shadow-sm"
-              placeholder="Email Address"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <textarea
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
-              required
-              rows="4"
-              className="bg-white border-transparent text-primary-900 text-sm font-medium rounded-2xl focus:ring-2 focus:ring-accent/50 focus:border-accent block w-full px-5 py-4 transition-all shadow-sm resize-none"
-              placeholder="Your Message..."
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-2 w-full flex items-center justify-center gap-2 rounded-2xl bg-primary-900 px-6 py-4 text-sm font-bold text-white transition-all hover:bg-accent focus:outline-none shadow-lg shadow-primary-900/20 hover:shadow-accent/30 disabled:opacity-70"
-          >
-            {isSubmitting ? 'Sending Request...' : (
-              <>Send Message <FiSend size={18} /></>
-            )}
-          </button>
-          
-          {submitStatus === 'success' && (
-            <p className="text-green-600 text-xs text-center font-bold tracking-widest uppercase mt-4">Message Sent!</p>
-          )}
-        </form>
-      </div>
-    </motion.div>
+        <button 
+          type="submit" 
+          className="brutal-button bg-brutal-yellow py-4 mt-2 text-lg hover:bg-brutal-red hover:text-white transition-colors"
+        >
+          {status || 'SEND IT'}
+        </button>
+      </form>
+    </div>
   );
 };
 

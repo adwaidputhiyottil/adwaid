@@ -1,32 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Righteous&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    @apply bg-primary-50 text-primary-900 font-sans antialiased selection:bg-accent selection:text-white transition-colors duration-300;
-  }
-}
-
 @layer utilities {
-  .glass-effect {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-sm shadow-primary-200/50;
+  .brutal-border {
+    @apply border-4 border-black;
   }
   
-  .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-200/50;
+  .brutal-card {
+    @apply brutal-border shadow-brutal bg-white transition-transform duration-200;
+  }
+  
+  .brutal-card:hover {
+    @apply translate-x-1 translate-y-1 shadow-brutal-active;
+  }
+
+  .brutal-button {
+    @apply brutal-border shadow-brutal active:translate-x-1 active:translate-y-1 active:shadow-brutal-active transition-all font-bold uppercase;
   }
 }
 
-/* Custom Scrollbar for elegant feel */
+body {
+  background-color: #f4ebd0; /* Beige background from image */
+  color: black;
+  font-family: 'Space Mono', monospace;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Righteous', cursive;
+  letter-spacing: 0.05em;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 12px;
+  border-left: 4px solid black;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f4ebd0;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-primary-300 rounded-full hover:bg-primary-500 transition-colors;
+  background: #ff6b6b;
+  border: 4px solid black;
 }
