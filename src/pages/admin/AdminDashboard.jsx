@@ -128,6 +128,18 @@ const ProfileManager = ({ profile, update }) => {
         <label className="font-display font-bold uppercase">About Me (Yellow Box)</label>
         <textarea rows="4" className="brutal-border p-3 w-full" value={form.about || ''} onChange={e => setForm({...form, about: e.target.value})} required />
       </div>
+      <div className="flex flex-col gap-2">
+        <label className="font-display font-bold uppercase">GitHub URL</label>
+        <input type="url" className="brutal-border p-3 w-full" placeholder="https://github.com/..." value={form.github || ''} onChange={e => setForm({...form, github: e.target.value})} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <label className="font-display font-bold uppercase">LinkedIn URL</label>
+        <input type="url" className="brutal-border p-3 w-full" placeholder="https://linkedin.com/in/..." value={form.linkedin || ''} onChange={e => setForm({...form, linkedin: e.target.value})} />
+      </div>
+      <div className="flex flex-col gap-2">
+        <label className="font-display font-bold uppercase">Public Email</label>
+        <input type="email" className="brutal-border p-3 w-full" placeholder="you@email.com" value={form.email || ''} onChange={e => setForm({...form, email: e.target.value})} />
+      </div>
       <button type="submit" className="brutal-button bg-brutal-green py-3 text-lg self-start px-8 mt-2 hover:text-white">SAVE PROFILE</button>
     </form>
   );

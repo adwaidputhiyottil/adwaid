@@ -16,6 +16,9 @@ export const PortfolioProvider = ({ children }) => {
     title: "WEB DESIGNER & DEVELOPER", 
     bio: "SPECIALIZING IN CREATIVE LANDING PAGES FOR BUSINESSES. PASSSIONATE SOFTWARE DEVELOPER CURRENTLY PURSUING MCA.", 
     about: "I am a passionate developer focused on building intuitive, beautiful, and highly functional web applications.",
+    github: "https://github.com",
+    linkedin: "https://linkedin.com",
+    email: "admin@gmail.com",
     show_certificates: true
   };
 

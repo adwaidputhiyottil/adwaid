@@ -36,15 +36,21 @@ const Hero = () => {
 
       {/* Social Icons Box */}
       <div className="flex gap-4 mt-auto">
-        <a href="#" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl">
-          <FiGithub className="stroke-[2.5]" />
-        </a>
-        <a href="#" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl">
-          <FiLinkedin className="stroke-[2.5]" />
-        </a>
-        <a href="mailto:admin@gmail.com" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl">
-          <FiMail className="stroke-[2.5]" />
-        </a>
+        {profile.github && (
+          <a href={profile.github} target="_blank" rel="noreferrer" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl hover:-translate-y-1 hover:bg-brutal-yellow transition-all">
+            <FiGithub className="stroke-[2.5]" />
+          </a>
+        )}
+        {profile.linkedin && (
+          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl hover:-translate-y-1 hover:bg-brutal-blue transition-all">
+            <FiLinkedin className="stroke-[2.5]" />
+          </a>
+        )}
+        {profile.email && (
+          <a href={`mailto:${profile.email}`} className="w-12 h-12 bg-white brutal-card flex items-center justify-center text-xl hover:-translate-y-1 hover:bg-brutal-pink transition-all">
+            <FiMail className="stroke-[2.5]" />
+          </a>
+        )}
       </div>
       
     </div>
