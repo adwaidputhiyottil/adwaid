@@ -6,7 +6,7 @@ const Hero = () => {
   const { profile } = usePortfolio();
 
   return (
-    <div className="flex flex-col h-full bg-[#f4ebd0] relative relative">
+    <div className="flex flex-col h-full bg-[#f4ebd0] relative">
       <div className="absolute top-0 right-0 md:top-4 md:right-4 bg-brutal-blue brutal-border px-3 py-1 shadow-[2px_2px_0_rgba(0,0,0,1)] transform rotate-3 z-10 hidden sm:block">
         <p className="font-display font-bold text-xs uppercase animate-pulse">AVAILABLE TO WORK</p>
       </div>

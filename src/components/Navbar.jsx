@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiHome, FiCode, FiBriefcase } from 'react-icons/fi';
+import { FiHome, FiCode, FiBriefcase, FiAward } from 'react-icons/fi';
 import { usePortfolio } from '../context/PortfolioContext';
 
 const Navbar = () => {
@@ -23,6 +23,11 @@ const Navbar = () => {
         <a href="#projects" className="hover:-translate-y-1 transition-transform p-2 bg-white brutal-border shadow-brutal-active">
           <FiBriefcase size={24} className="stroke-[2.5]" />
         </a>
+        {profile.show_certificates !== false && (
+          <a href="#certificates" className="hover:-translate-y-1 transition-transform p-2 bg-white brutal-border shadow-brutal-active">
+            <FiAward size={24} className="stroke-[2.5]" />
+          </a>
+        )}
       </div>
 
       {/* CTA Button */}

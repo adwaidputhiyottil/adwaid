@@ -1,105 +1,149 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../supabase/client';
 
 const PortfolioContext = createContext();
 
-const initialProfile = {
-  name: "ADWAID",
-  title: "WEB DESIGNER & DEVELOPER",
-  bio: "SPECIALIZING IN CREATIVE LANDING PAGES FOR BUSINESSES. PASSSIONATE SOFTWARE DEVELOPER CURRENTLY PURSUING MCA.",
-  about: "I am a passionate developer focused on building intuitive, beautiful, and highly functional web applications."
-};
-
-const initialSkills = [
-  { id: 1, name: 'WEB DESIGN', percentage: 90, color: 'bg-[#a3e4d7]' },
-  { id: 2, name: 'WEB DEVELOPMENT', percentage: 85, color: 'bg-[#fcf3cf]' },
-  { id: 3, name: 'SEO OPTIMIZATION', percentage: 70, color: 'bg-[#f5b7b1]' },
-  { id: 4, name: 'UI DESIGN', percentage: 80, color: 'bg-[#aed6f1]' },
-  { id: 5, name: 'UX DESIGN', percentage: 75, color: 'bg-[#f5cba7]' },
-  { id: 6, name: 'GRAPHIC DESIGN', percentage: 65, color: 'bg-[#edbb99]' }
-];
-
-const initialProjects = [
-  {
-    id: 1,
-    title: 'Modern Portfolio',
-    description: 'A completely redesigned portfolio with a split-screen desktop layout, seamless animations, and skeleton loading states.',
-    techStack: ['React', 'Tailwind', 'Vite'],
-    githubLink: '#',
-    liveUrl: '#',
-    image: null,
-    bgColor: 'bg-[#e57373]'
-  },
-  {
-    id: 2,
-    title: 'E-commerce App',
-    description: 'A full-stack e-commerce solution with dynamic cart management, user authentication, and seamless checkout experience.',
-    techStack: ['React', 'Node', 'MySQL'],
-    githubLink: '#',
-    liveUrl: '',
-    image: null,
-    bgColor: 'bg-[#f1c40f]'
-  },
-  {
-    id: 3,
-    title: 'Task Manager',
-    description: 'A productivity app for organizing daily tasks, featuring drag-and-drop functionality and progress tracking.',
-    techStack: ['Java', 'Spring', 'MySQL'],
-    githubLink: '#',
-    liveUrl: '#',
-    image: null,
-    bgColor: 'bg-[#4a235a]'
-  }
-];
-
 export const PortfolioProvider = ({ children }) => {
-  const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem('portfolio_profile');
-    return saved ? JSON.parse(saved) : initialProfile;
-  });
+  const [profile, setProfile] = useState({ name: 'Loading...', title: '', bio: '', about: '', show_certificates: true });
+  const [skills, setSkills] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [skills, setSkills] = useState(() => {
-    const saved = localStorage.getItem('portfolio_skills');
-    return saved ? JSON.parse(saved) : initialSkills;
-  });
+  const fallbackProfile = { 
+    name: "ADWAID", 
+    title: "WEB DESIGNER & DEVELOPER", 
+    bio: "SPECIALIZING IN CREATIVE LANDING PAGES FOR BUSINESSES. PASSSIONATE SOFTWARE DEVELOPER CURRENTLY PURSUING MCA.", 
+    about: "I am a passionate developer focused on building intuitive, beautiful, and highly functional web applications.",
+    show_certificates: true
+  };
 
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem('portfolio_projects');
-    return saved ? JSON.parse(saved) : initialProjects;
-  });
+  const isConfigured = !!supabase;
 
-  const [messages, setMessages] = useState(() => {
-    const saved = localStorage.getItem('portfolio_messages');
-    return saved ? JSON.parse(saved) : [];
-  });
+  useEffect(() => {
+    if (!isConfigured) {
+      console.warn("Supabase credentials not found in .env.local! Falling back to empty/mock local state.");
+      setProfile(fallbackProfile);
+      setSkills([{ id: 'mock-1', name: 'REACT', percentage: 90 }]);
+      setProjects([]);
+      setCertificates([{ id: 'mock-c1', title: 'Example Certificate', issuer: 'Meta', date: '2026', link: '#' }]);
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+    fetchData();
+  }, [isConfigured]);
 
-  // Persist State to LocalStorage
-  useEffect(() => { localStorage.setItem('portfolio_profile', JSON.stringify(profile)); }, [profile]);
-  useEffect(() => { localStorage.setItem('portfolio_skills', JSON.stringify(skills)); }, [skills]);
-  useEffect(() => { localStorage.setItem('portfolio_projects', JSON.stringify(projects)); }, [projects]);
-  useEffect(() => { localStorage.setItem('portfolio_messages', JSON.stringify(messages)); }, [messages]);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [profRes, skillRes, projRes, msgRes, certRes] = await Promise.all([
+        supabase.from('profile').select('*').limit(1).single(),
+        supabase.from('skills').select('*').order('created_at', { ascending: true }),
+        supabase.from('projects').select('*').order('created_at', { ascending: true }),
+        supabase.from('messages').select('*').order('created_at', { ascending: false }),
+        supabase.from('certificates').select('*').order('created_at', { ascending: true })
+      ]);
 
-  // Actions
-  const updateProfile = (newProfile) => setProfile({ ...profile, ...newProfile });
-  
-  const addSkill = (skill) => setSkills([...skills, { ...skill, id: Date.now() }]);
-  const updateSkill = (id, updated) => setSkills(skills.map(s => s.id === id ? { ...s, ...updated } : s));
-  const deleteSkill = (id) => setSkills(skills.filter(s => s.id !== id));
+      if (profRes.data) setProfile(profRes.data);
+      else setProfile(fallbackProfile);
+      
+      if (skillRes.data) setSkills(skillRes.data);
+      if (projRes.data) setProjects(projRes.data);
+      if (msgRes.data) setMessages(msgRes.data);
+      if (certRes.data) setCertificates(certRes.data);
+    } catch (e) {
+      console.error("Error fetching data:", e);
+      setProfile(fallbackProfile);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const addProject = (project) => setProjects([...projects, { ...project, id: Date.now(), hidden: false }]);
-  const updateProject = (id, updated) => setProjects(projects.map(p => p.id === id ? { ...p, ...updated } : p));
-  const deleteProject = (id) => setProjects(projects.filter(p => p.id !== id));
-  const toggleProjectVisibility = (id) => setProjects(projects.map(p => p.id === id ? { ...p, hidden: !p.hidden } : p));
+  const updateProfile = async (updated) => {
+    if (isConfigured && profile.id) {
+      await supabase.from('profile').update(updated).eq('id', profile.id);
+    }
+    setProfile({ ...profile, ...updated });
+  };
 
-  const addMessage = (message) => setMessages([{ ...message, id: Date.now(), read: false, replied: false, date: new Date().toISOString() }, ...messages]);
-  const markMessageRead = (id) => setMessages(messages.map(m => m.id === id ? { ...m, read: true } : m));
-  const replyToMessage = (id, replyText) => setMessages(messages.map(m => m.id === id ? { ...m, replied: true, replyText, read: true } : m));
+  const addSkill = async (skill) => {
+    const newSkill = { ...skill, percentage: parseInt(skill.percentage) || 0 };
+    if (isConfigured) {
+      const { data } = await supabase.from('skills').insert([newSkill]).select().single();
+      if (data) setSkills([...skills, data]);
+    } else {
+      setSkills([...skills, { ...newSkill, id: Date.now() }]);
+    }
+  };
+
+  const deleteSkill = async (id) => {
+    if (isConfigured) await supabase.from('skills').delete().eq('id', id);
+    setSkills(skills.filter(s => s.id !== id));
+  };
+
+  const addProject = async (project) => {
+    const payload = { ...project, hidden: false };
+    if (isConfigured) {
+      const { data } = await supabase.from('projects').insert([payload]).select().single();
+      if (data) setProjects([...projects, data]);
+    } else {
+      setProjects([...projects, { ...payload, id: Date.now() }]);
+    }
+  };
+
+  const deleteProject = async (id) => {
+    if (isConfigured) await supabase.from('projects').delete().eq('id', id);
+    setProjects(projects.filter(p => p.id !== id));
+  };
+
+  const toggleProjectVisibility = async (id) => {
+    const project = projects.find(p => p.id === id);
+    if (!project) return;
+    if (isConfigured) await supabase.from('projects').update({ hidden: !project.hidden }).eq('id', id);
+    setProjects(projects.map(p => p.id === id ? { ...p, hidden: !p.hidden } : p));
+  };
+
+  const addMessage = async (message) => {
+    const newMsg = { ...message, read: false, replied: false };
+    if (isConfigured) {
+      const { data } = await supabase.from('messages').insert([newMsg]).select().single();
+      if (data) setMessages([data, ...messages]);
+    } else {
+      setMessages([{ ...newMsg, id: Date.now() }, ...messages]);
+    }
+  };
+
+  const replyToMessage = async (id, replyText) => {
+    if (isConfigured) {
+      await supabase.from('messages').update({ replied: true, replyText, read: true }).eq('id', id);
+    }
+    setMessages(messages.map(m => m.id === id ? { ...m, replied: true, replyText, read: true } : m));
+  };
+
+  const addCertificate = async (cert) => {
+    if (isConfigured) {
+      const { data } = await supabase.from('certificates').insert([cert]).select().single();
+      if (data) setCertificates([...certificates, data]);
+    } else {
+      setCertificates([...certificates, { ...cert, id: Date.now() }]);
+    }
+  };
+
+  const deleteCertificate = async (id) => {
+    if (isConfigured) await supabase.from('certificates').delete().eq('id', id);
+    setCertificates(certificates.filter(c => c.id !== id));
+  };
 
   return (
     <PortfolioContext.Provider value={{
       profile, updateProfile,
-      skills, addSkill, updateSkill, deleteSkill,
-      projects, addProject, updateProject, deleteProject, toggleProjectVisibility,
-      messages, addMessage, markMessageRead, replyToMessage
+      skills, addSkill, deleteSkill,
+      projects, addProject, deleteProject, toggleProjectVisibility,
+      certificates, addCertificate, deleteCertificate,
+      messages, addMessage, replyToMessage,
+      loading
     }}>
       {children}
     </PortfolioContext.Provider>
