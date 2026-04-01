@@ -10,8 +10,8 @@ const AdminDashboard = () => {
   const { 
     profile, updateProfile, 
     skills, addSkill, deleteSkill,
-    projects, addProject, deleteProject,
-    certificates, addCertificate, deleteCertificate,
+    projects, addProject, deleteProject, updateProject,
+    certificates, addCertificate, deleteCertificate, updateCertificate,
     messages, replyToMessage
   } = usePortfolio();
 
@@ -193,16 +193,43 @@ const SkillsManager = ({ skills, add, remove }) => {
 };
 
 const ProjectsManager = ({ projects, add, remove }) => {
-  const { toggleProjectVisibility } = usePortfolio();
+  const { toggleProjectVisibility, updateProject } = usePortfolio();
   const [form, setForm] = useState({ title: '', description: '', techStack: '', liveUrl: '', githubLink: '' });
   const [status, setStatus] = useState('');
+  const [editingId, setEditingId] = useState(null);
   
   const handleSubmit = (e) => { 
     e.preventDefault(); 
-    add({...form, techStack: form.techStack.split(',').map(s=>s.trim())}); 
+    const payload = {...form, techStack: typeof form.techStack === 'string' ? form.techStack.split(',').map(s=>s.trim()) : form.techStack};
+    
+    if (editingId) {
+      updateProject(editingId, payload);
+      setStatus('PROJECT UPDATED!');
+      setEditingId(null);
+    } else {
+      add(payload); 
+      setStatus('PROJECT ADDED!');
+    }
     setForm({ title: '', description: '', techStack: '', liveUrl: '', githubLink: '' }); 
-    setStatus('PROJECT ADDED!');
     setTimeout(() => setStatus(''), 3000);
+  };
+
+  const handleEdit = (p) => {
+    setEditingId(p.id);
+    setForm({
+      title: p.title,
+      description: p.description,
+      techStack: Array.isArray(p.techStack) ? p.techStack.join(', ') : p.techStack,
+      liveUrl: p.liveUrl || '',
+      githubLink: p.githubLink || ''
+    });
+    // Scroll to form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({ title: '', description: '', techStack: '', liveUrl: '', githubLink: '' });
   };
 
   const handleDelete = (id) => {
@@ -224,14 +251,19 @@ const ProjectsManager = ({ projects, add, remove }) => {
           {status}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="bg-white brutal-border p-6 shadow-brutal flex flex-col gap-4 max-w-lg w-full h-fit">
-        <h3 className="font-display font-bold text-xl uppercase mb-2">Add Project</h3>
+      <form onSubmit={handleSubmit} className="bg-white brutal-border p-6 shadow-brutal flex flex-col gap-4 max-w-lg w-full h-fit sticky top-8">
+        <h3 className="font-display font-bold text-xl uppercase mb-2">{editingId ? 'Edit Project' : 'Add Project'}</h3>
         <input type="text" placeholder="TITLE" className="brutal-border p-3" value={form.title} onChange={e=>setForm({...form, title: e.target.value})} required />
         <textarea placeholder="DESCRIPTION" className="brutal-border p-3" value={form.description} onChange={e=>setForm({...form, description: e.target.value})} required />
         <input type="text" placeholder="TECH STACK (comma separated)" className="brutal-border p-3" value={form.techStack} onChange={e=>setForm({...form, techStack: e.target.value})} required />
         <input type="url" placeholder="LIVE URL (optional)" className="brutal-border p-3" value={form.liveUrl} onChange={e=>setForm({...form, liveUrl: e.target.value})} />
         <input type="url" placeholder="GITHUB LINK (optional)" className="brutal-border p-3" value={form.githubLink} onChange={e=>setForm({...form, githubLink: e.target.value})} />
-        <button type="submit" className="brutal-button bg-brutal-blue text-white py-3">ADD PROJECT</button>
+        <div className="flex gap-2">
+          <button type="submit" className={`brutal-button flex-grow py-3 ${editingId ? 'bg-brutal-yellow' : 'bg-brutal-blue text-white'}`}>
+            {editingId ? 'UPDATE PROJECT' : 'ADD PROJECT'}
+          </button>
+          {editingId && <button type="button" onClick={cancelEdit} className="brutal-button bg-white px-4 py-3">CANCEL</button>}
+        </div>
       </form>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow content-start">
@@ -241,7 +273,10 @@ const ProjectsManager = ({ projects, add, remove }) => {
               {p.title} {p.hidden && ' (HIDDEN)'}
             </h4>
             <p className="font-bold text-sm mb-4 line-clamp-3 bg-white/80 p-2 border-2 border-black">{p.description}</p>
-            <div className="mt-auto flex gap-2">
+            <div className="mt-auto flex flex-wrap gap-2">
+              <button onClick={() => handleEdit(p)} className="bg-brutal-blue text-white brutal-border px-3 py-2 font-bold uppercase hover:-translate-y-1 transition-all text-xs flex-1">
+                Edit
+              </button>
               <button onClick={() => handleToggle(p.id)} className="bg-brutal-yellow text-black brutal-border px-3 py-2 font-bold uppercase hover:-translate-y-1 transition-all text-xs flex-1">
                 {p.hidden ? 'Show' : 'Hide'}
               </button>
@@ -257,15 +292,40 @@ const ProjectsManager = ({ projects, add, remove }) => {
 };
 
 const CertificatesManager = ({ certificates, add, remove, profile, updateProfile }) => {
+  const { updateCertificate } = usePortfolio();
   const [form, setForm] = useState({ title: '', issuer: '', date: '', link: '', imageUrl: '' });
   const [status, setStatus] = useState('');
+  const [editingId, setEditingId] = useState(null);
   
   const handleSubmit = (e) => { 
     e.preventDefault(); 
-    add(form); 
+    if (editingId) {
+      updateCertificate(editingId, form);
+      setStatus('CERTIFICATE UPDATED!');
+      setEditingId(null);
+    } else {
+      add(form); 
+      setStatus('CERTIFICATE ADDED!');
+    }
     setForm({ title: '', issuer: '', date: '', link: '', imageUrl: '' }); 
-    setStatus('CERTIFICATE ADDED!');
     setTimeout(() => setStatus(''), 3000);
+  };
+
+  const handleEdit = (c) => {
+    setEditingId(c.id);
+    setForm({
+      title: c.title,
+      issuer: c.issuer,
+      date: c.date,
+      link: c.link || '',
+      imageUrl: c.imageUrl || ''
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({ title: '', issuer: '', date: '', link: '', imageUrl: '' });
   };
 
   const handleDelete = (id) => {
@@ -318,8 +378,8 @@ const CertificatesManager = ({ certificates, add, remove, profile, updateProfile
       </div>
 
       <div className="flex flex-col xl:flex-row gap-8">
-        <form onSubmit={handleSubmit} className="bg-white brutal-border p-6 shadow-brutal flex flex-col gap-4 max-w-lg w-full h-fit">
-          <h3 className="font-display font-bold text-xl uppercase mb-2">Add Certificate</h3>
+        <form onSubmit={handleSubmit} className="bg-white brutal-border p-6 shadow-brutal flex flex-col gap-4 max-w-lg w-full h-fit sticky top-8">
+          <h3 className="font-display font-bold text-xl uppercase mb-2">{editingId ? 'Edit Certificate' : 'Add Certificate'}</h3>
           <input type="text" placeholder="TITLE (e.g. AWS Cloud Practitioner)" className="brutal-border p-3" value={form.title} onChange={e=>setForm({...form, title: e.target.value})} required />
           <input type="text" placeholder="ISSUER (e.g. Amazon)" className="brutal-border p-3" value={form.issuer} onChange={e=>setForm({...form, issuer: e.target.value})} required />
           <input type="text" placeholder="DATE (e.g. Jan 2026)" className="brutal-border p-3" value={form.date} onChange={e=>setForm({...form, date: e.target.value})} required />
@@ -335,7 +395,12 @@ const CertificatesManager = ({ certificates, add, remove, profile, updateProfile
           </div>
           {form.imageUrl && <div className="h-20 w-full overflow-hidden border-2 border-black"><img src={form.imageUrl} alt="preview" className="w-full h-full object-cover" /></div>}
 
-          <button type="submit" className="brutal-button bg-brutal-pink py-3 text-black">ADD CERTIFICATE</button>
+          <div className="flex gap-2">
+            <button type="submit" className={`brutal-button flex-grow py-3 ${editingId ? 'bg-brutal-yellow' : 'bg-brutal-pink text-black'}`}>
+              {editingId ? 'UPDATE CERTIFICATE' : 'ADD CERTIFICATE'}
+            </button>
+            {editingId && <button type="button" onClick={cancelEdit} className="brutal-button bg-white px-4 py-3">CANCEL</button>}
+          </div>
         </form>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow content-start">
@@ -346,7 +411,10 @@ const CertificatesManager = ({ certificates, add, remove, profile, updateProfile
               </h4>
               {c.imageUrl && <img src={c.imageUrl} alt={c.title} className="w-full h-24 object-cover border-2 border-black mb-2" />}
               <p className="font-bold text-sm mb-4 mt-2">Issuer: {c.issuer} <br/> Date: {c.date}</p>
-              <div className="mt-auto flex gap-2">
+              <div className="mt-auto flex flex-wrap gap-2">
+                <button onClick={() => handleEdit(c)} className="bg-brutal-blue text-white brutal-border px-3 py-2 font-bold uppercase hover:-translate-y-1 transition-all text-xs flex-1">
+                  Edit
+                </button>
                 <button onClick={() => handleDelete(c.id)} className="bg-brutal-red text-white brutal-border px-3 py-2 font-bold uppercase hover:-translate-y-1 transition-all text-xs flex-1 flex items-center justify-center gap-1">
                   <FiTrash2 /> Delete
                 </button>

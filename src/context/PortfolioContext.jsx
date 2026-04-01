@@ -101,6 +101,13 @@ export const PortfolioProvider = ({ children }) => {
     setProjects(projects.filter(p => p.id !== id));
   };
 
+  const updateProject = async (id, updatedData) => {
+    if (isConfigured) {
+      await supabase.from('projects').update(updatedData).eq('id', id);
+    }
+    setProjects(projects.map(p => p.id === id ? { ...p, ...updatedData } : p));
+  };
+
   const toggleProjectVisibility = async (id) => {
     const project = projects.find(p => p.id === id);
     if (!project) return;
@@ -141,12 +148,19 @@ export const PortfolioProvider = ({ children }) => {
     setCertificates(certificates.filter(c => c.id !== id));
   };
 
+  const updateCertificate = async (id, updatedData) => {
+    if (isConfigured) {
+      await supabase.from('certificates').update(updatedData).eq('id', id);
+    }
+    setCertificates(certificates.map(c => c.id === id ? { ...c, ...updatedData } : c));
+  };
+
   return (
     <PortfolioContext.Provider value={{
       profile, updateProfile,
       skills, addSkill, deleteSkill,
-      projects, addProject, deleteProject, toggleProjectVisibility,
-      certificates, addCertificate, deleteCertificate,
+      projects, addProject, deleteProject, updateProject, toggleProjectVisibility,
+      certificates, addCertificate, deleteCertificate, updateCertificate,
       messages, addMessage, replyToMessage,
       loading
     }}>
