@@ -111,8 +111,10 @@ export const PortfolioProvider = ({ children }) => {
   const addMessage = async (message) => {
     const newMsg = { ...message, read: false, replied: false };
     if (isConfigured) {
-      const { data } = await supabase.from('messages').insert([newMsg]).select().single();
-      if (data) setMessages([data, ...messages]);
+      const { error } = await supabase.from('messages').insert([newMsg]);
+      if (error) console.error("Error inserting message:", error);
+      // We don't use .select() here because public users only have INSERT permissions, not SELECT.
+      // And we don't need to append it to the local state because public users can't see the inbox anyway!
     } else {
       setMessages([{ ...newMsg, id: Date.now() }, ...messages]);
     }
